@@ -85,5 +85,13 @@ namespace FinanceTrackerApi.Controllers
             return NoContent();
         }
 
+        [HttpGet("summary")]
+        public async Task<ActionResult<SummaryDto>> GetSummary()
+        {
+            int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            return Ok(await _transactionService.GetSummaryAsync(userId));
+        }
+
     }
 }

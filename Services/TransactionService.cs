@@ -1,4 +1,5 @@
 ﻿using FinanceTrackerApi.Data;
+using FinanceTrackerApi.DTOs;
 using FinanceTrackerApi.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -62,6 +63,33 @@ namespace FinanceTrackerApi.Services
             return true;
         }
 
+        public async Task<SummaryDto> GetSummaryAsync(int userId)
+        {
+            var transactions = await _context.Transactions
+                .Where(t => t.UserId == userId)
+                .Include(t => t.Category)
+                .ToListAsync();
+
+            double income = transactions
+                .Where(t => t.Category.Type == "Income")
+                .Sum(t => t.Amount);
+
+            double expense = transactions
+                .Where(t => t.Category.Type == "Expense")
+                .Sum(t => t.Amount);
+
+            double balance = income - expense;
+
+            SummaryDto summary = new()
+            {
+                TotalExpense = expense,
+                TotalIncome = income,
+                Balance = balance
+            };
+
+            return summary;
+
+        }
 
     }
 }
